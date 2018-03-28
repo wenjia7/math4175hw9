@@ -18,7 +18,7 @@ public class HW9 {
         int count2 = 0;
         int[] s2 = {8, 4, 2, 1, 0xc, 6, 3, 0xd, 0xa, 5, 0xe, 7, 0xf, 0xb, 9, 0};
         for (int i = 0; i < Math.pow(2, 16); i++) {
-            System.out.println("input = " + Problem1.toBinaryString(i));
+            System.out.println("input = " + Problem1.toBinaryString(i, 16));
             if(Problem2.SPNEncrypt(i, 4, false, s2, pip, k1)) {
                 count++;
             }
@@ -31,6 +31,17 @@ public class HW9 {
         }
         System.out.println("key 1: " + count);
         System.out.println("key 2: " + count2);
+        
+        //problem 3
+        int key3 = 0x5b;
+        // class example
+        //System.out.println(Problem1.toBinaryString(Problem3.babyHorstEncrypt(0x75, 0xab), 8));
+        //System.out.println(Problem1.toBinaryString(Problem3.babyHorstDecrypt(0x75, 0x9a), 8));
+        // 3 part a
+        //System.out.println(Problem1.toBinaryString(Problem3.babyHorstEncrypt(key3, 8), 8));
+        System.out.println(Problem1.toBinaryString(Problem3.babyHorstDecrypt(key3, 8), 8));
+        // 3 part b
+        System.out.println(Problem3.allPossibleR0(key3, 0) + " r0 found");
     }
     
     
