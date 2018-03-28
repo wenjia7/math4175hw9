@@ -8,8 +8,8 @@ public class BiasCalculator {
         int count = 0;
         for(int i =0; i< Math.pow(2,16); i++)
         {
-            String u = Problem1.toBinaryString(incompleteEncrypt(i, round, sbox, perm, key));
-            String plain = Problem1.toBinaryString(i);
+            String u = Problem1.toBinaryString(incompleteEncrypt(i, round, sbox, perm, key),16);
+            String plain = Problem1.toBinaryString(i,16);
             if((u.charAt(0)=='0')^(u.charAt(8)=='0')^(plain.charAt(15)=='0'))
             {
                 count++;
@@ -29,30 +29,30 @@ public class BiasCalculator {
         boolean display = false;
         int cipher = plain;
         if (display) {
-            System.out.println("w1 = " + Problem1.toBinaryString(plain));
+            System.out.println("w1 = " + Problem1.toBinaryString(plain,16));
         }
         // round - 1 times
         for (int i = 0; i < round - 1; i++) {
             cipher ^= keys[i];
             if (display) {
-                System.out.println("k" + (i + 1) + " = " + Problem1.toBinaryString(keys[i]));
-                System.out.println("u" + (i + 1) + " = " + Problem1.toBinaryString(cipher));
+                System.out.println("k" + (i + 1) + " = " + Problem1.toBinaryString(keys[i],16));
+                System.out.println("u" + (i + 1) + " = " + Problem1.toBinaryString(cipher,16));
             }
             cipher = Problem1.substitution(cipher, sbox);
             if (display) {
-                System.out.println("v" + (i + 1) + " = " + Problem1.toBinaryString(cipher));
+                System.out.println("v" + (i + 1) + " = " + Problem1.toBinaryString(cipher,16));
             }
             cipher = Problem1.permutation(cipher, perm);
             if (display) {
-                System.out.println("w" + (i + 1) + " = " + Problem1.toBinaryString(cipher));
+                System.out.println("w" + (i + 1) + " = " + Problem1.toBinaryString(cipher,16));
             }
         }
         // last round
         // k4 is at position 3 in array keys
         cipher ^= keys[round - 1];
         if (display) {
-            System.out.println("k" + (round) + " = " + Problem1.toBinaryString(keys[round - 1]));
-            System.out.println("u" + (round) + " = " + Problem1.toBinaryString(cipher));
+            System.out.println("k" + (round) + " = " + Problem1.toBinaryString(keys[round - 1],16));
+            System.out.println("u" + (round) + " = " + Problem1.toBinaryString(cipher,16));
         }
         return cipher;
         //if (((plain & 1) ^ (cipher & (1 << 15)) ^ (cipher & (1 << 7))) == 0) {
