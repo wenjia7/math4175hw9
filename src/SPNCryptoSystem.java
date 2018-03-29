@@ -1,5 +1,13 @@
 
-public class Problem1 {
+public class SPNCryptoSystem {
+    /**
+     * Generate the keys from the given key
+     * @param key
+     *      Given key
+     * @param round
+     *      Number of round
+     * @return the keys 
+     */
     public static int[] SPNKeyScheduler(int key, int round) {
         int[] keys = new int[round + 1];
         int mask = 0xffff;
@@ -10,6 +18,14 @@ public class Problem1 {
         return keys;
     }
     
+    /**
+     * Substitution Operation (S Box)
+     * @param input
+     *      Input integer
+     * @param pis
+     *      The sbox
+     * @return the corresponding integer of the input integer in the sbox
+     */
     public static int substitution(int input, int[] pis) {
         int[] subs = new int[4];
         int mask = 0xf;
@@ -23,14 +39,20 @@ public class Problem1 {
         // add up
         for (int i = 0; i < 4; i++) {
             result <<= 4;
-            
-                //System.out.println(toBinaryString(result));
-
             result += pis[subs[i]];
         }
         return result;
     }
     
+    /**
+     * Permutate the input
+     * @param input
+     *      Input int
+     * @param pip
+     *      Permutation function
+     *       
+     * @return The permutated of the input int
+     */
     public static int permutation(int input, int[] pip) {
         
         int one = 1;
@@ -38,19 +60,29 @@ public class Problem1 {
         for (int i = 15; i >= 0; i--) {
             //if 1
             if ((input & (one << i)) != 0) {
-                //System.out.println((15 - i) + " one " + toBinaryString(one << i));
-                
-                //put 1 at corresponding position
                 result += (one << (16 - (pip[15 - i])));
-                //System.out.println(pip[15 - i]);
-                //System.out.println(toBinaryString(one << (16 - pip[15 - i])));
-                //System.out.println(toBinaryString(result));
+                
             }
         }
-        //return Integer.parseInt(result.toString(),2);
         return result;
     }
     
+    /**
+     * Encrypt the message using SPN
+     * @param plain
+     *      plain text
+     * @param round
+     *      number of round
+     * @param display
+     *      boolean indicate whether to print out each step result
+     * @param sbox
+     *      sbox
+     * @param perm
+     *      permutation function
+     * @param key
+     *      key
+     * @return cipher text
+     */
     public static int SPNEncrypt(int plain, int round, boolean display, int[] sbox, int[] perm, int key) {
         int[] keys = SPNKeyScheduler(key, round);
 
@@ -96,7 +128,22 @@ public class Problem1 {
         }
         return result;
     }
-    
+    /**
+     * Decrypt the message using SPN
+     * @param cipher
+     *      cipher text
+     * @param round
+     *      number of round
+     * @param display
+     *      boolean indicate whether to print out each step result
+     * @param sbox
+     *      sbox
+     * @param perm
+     *      permutation function
+     * @param key
+     *      key
+     * @return plain text
+     */
     public static int SPNDecrypt(int cipher, int round, boolean display, int[] sbox, int[] perm, int key) {
         int result = cipher;
         int[] keys = SPNKeyScheduler(key, round);
@@ -138,6 +185,14 @@ public class Problem1 {
         return result;
     }
     
+    /**
+     * Change integer to binary and add leading zeros if needed
+     * @param number
+     *      hexa value to be changed
+     * @param length
+     *      the desire length of the binary string
+     * @return the binary string to the length indicate corresponding to the hexa value
+     */
     public static String toBinaryString(int number, int length) {
         String result = Integer.toBinaryString(number);
         while(result.length() < length) {

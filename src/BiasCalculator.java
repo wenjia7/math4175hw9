@@ -1,72 +1,120 @@
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 public class BiasCalculator {
 
    
-    
-    public static int favOutcome(int textLength, int  key, int round, int[] sbox, int[] perm)
+    /**
+     * Encrypt all possible plain-cipher pair and count the number of cases in which T =0
+     * @param textLength
+     *          Length of plain text
+     * @param key
+     *          The key
+     * @param round
+     *          Number of round
+     * @param sbox
+     *          Sbox
+     * @param perm
+     *          Permutation
+     * @param FileName
+     *          Name of file where output will be printed
+     * @return the number of cases
+     * @throws IOException
+     *          If file cannot be opened
+     */
+    public static int favOutcome(int textLength, int  key, int round, int[] sbox, int[] perm, String FileName) throws IOException
     {
+        PrintWriter out = new PrintWriter(new FileWriter(FileName));
+        
+       
         int count = 0;
-        for(int i =0; i< Math.pow(2,16); i++)
+        int[] keys = SPNCryptoSystem.SPNKeyScheduler(key, round);//get the keys from K
+        for(int i =0; i< Math.pow(2,textLength); i++)
         {
-            String u = Problem1.toBinaryString(incompleteEncrypt(i, round, sbox, perm, key),16);
-            String plain = Problem1.toBinaryString(i,16);
-            if((u.charAt(0)=='0')^(u.charAt(8)=='0')^(plain.charAt(15)=='0'))
+            int uInteger = incompleteEncrypt(i, round, sbox, perm, key);//encrypt up until the last round to get U_4
+            String u = SPNCryptoSystem.toBinaryString(uInteger,16);
+            String plain = SPNCryptoSystem.toBinaryString(i,16);
+            if((u.charAt(0)=='0')^(u.charAt(8)=='0')^(plain.charAt(15)=='0'))//count the number of pair of plain-cipher such that T=0
             {
                 count++;
             }
             
+            int cipher = SPNCryptoSystem.substitution(uInteger, sbox);//continue the encryption
+            cipher ^= keys[round];
+            out.printf("Plaintext: %s, Cipher: %s\n", SPNCryptoSystem.toBinaryString(i,16),SPNCryptoSystem.toBinaryString(cipher,16));//print out all possible plain-cipher to a file
+            
+            
         }
         
-       
         
+        out.close();
         
-        return count;
+        return count;//return the number of cases
     }
-    
+    /**
+     * Encrypt using SPN up until the last round
+     * @param plain
+     *          plain text
+     * @param round
+     *          number of round
+     * @param sbox
+     *          sbox
+     * @param perm
+     *          permutation
+     * @param key
+     *          key
+     * @return U_4
+     */
     public static int incompleteEncrypt(int plain, int round, int[] sbox, int[] perm, int key)
     {
-        int[] keys = Problem1.SPNKeyScheduler(key, round);
+        int[] keys = SPNCryptoSystem.SPNKeyScheduler(key, round);
         boolean display = false;
         int cipher = plain;
         if (display) {
-            System.out.println("w1 = " + Problem1.toBinaryString(plain,16));
+            System.out.println("w1 = " + SPNCryptoSystem.toBinaryString(plain,16));
         }
         // round - 1 times
         for (int i = 0; i < round - 1; i++) {
             cipher ^= keys[i];
             if (display) {
-                System.out.println("k" + (i + 1) + " = " + Problem1.toBinaryString(keys[i],16));
-                System.out.println("u" + (i + 1) + " = " + Problem1.toBinaryString(cipher,16));
+                System.out.println("k" + (i + 1) + " = " + SPNCryptoSystem.toBinaryString(keys[i],16));
+                System.out.println("u" + (i + 1) + " = " + SPNCryptoSystem.toBinaryString(cipher,16));
             }
-            cipher = Problem1.substitution(cipher, sbox);
+            cipher = SPNCryptoSystem.substitution(cipher, sbox);
             if (display) {
-                System.out.println("v" + (i + 1) + " = " + Problem1.toBinaryString(cipher,16));
+                System.out.println("v" + (i + 1) + " = " + SPNCryptoSystem.toBinaryString(cipher,16));
             }
-            cipher = Problem1.permutation(cipher, perm);
+            cipher = SPNCryptoSystem.permutation(cipher, perm);
             if (display) {
-                System.out.println("w" + (i + 1) + " = " + Problem1.toBinaryString(cipher,16));
+                System.out.println("w" + (i + 1) + " = " + SPNCryptoSystem.toBinaryString(cipher,16));
             }
         }
         // last round
         // k4 is at position 3 in array keys
         cipher ^= keys[round - 1];
         if (display) {
-            System.out.println("k" + (round) + " = " + Problem1.toBinaryString(keys[round - 1],16));
-            System.out.println("u" + (round) + " = " + Problem1.toBinaryString(cipher,16));
+            System.out.println("k" + (round) + " = " + SPNCryptoSystem.toBinaryString(keys[round - 1],16));
+            System.out.println("u" + (round) + " = " + SPNCryptoSystem.toBinaryString(cipher,16));
         }
+        
+        
         return cipher;
-        //if (((plain & 1) ^ (cipher & (1 << 15)) ^ (cipher & (1 << 7))) == 0) {
-          //  isZero = true;
-        //}
-       // result = Problem1.substitution(result, sbox);
-        //if (display) {
-            
-          //  System.out.println("v" + round + " = " + Problem1.toBinaryString(result));
-           // System.out.println("k" + (round + 1) + " = " + Problem1.toBinaryString(keys[round]));
-        //}
-        // k5 at keys[4]
-        //result ^= keys[round];
-        //System.out.println("y  = " + Problem1.toBinaryString(result));
+       
+        
 
+    }
+    
+    /**
+     * Calculate the bias
+     * @param favOutcome
+     *      number of cases of T=0
+     * @param possOutcome
+     *      number of all possible cases
+     * @return the bias
+     */
+    public static double bias(int favOutcome, int possOutcome)
+    {
+        return (double)((double)favOutcome/(double)possOutcome -0.5);
     }
 }
